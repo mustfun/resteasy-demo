@@ -1,0 +1,44 @@
+package com.dzy.resteasy.job;
+
+import com.dangdang.ddframe.job.config.JobCoreConfiguration;
+import com.dangdang.ddframe.job.config.simple.SimpleJobConfiguration;
+import com.dangdang.ddframe.job.lite.api.JobScheduler;
+import com.dangdang.ddframe.job.lite.config.LiteJobConfiguration;
+import com.dangdang.ddframe.job.reg.base.CoordinatorRegistryCenter;
+import com.dangdang.ddframe.job.reg.zookeeper.ZookeeperConfiguration;
+import com.dangdang.ddframe.job.reg.zookeeper.ZookeeperRegistryCenter;
+import com.dzy.resteasy.support.config.zk.ZkRegistryConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * @author dengzhiyuan
+ * @version 1.0
+ * @date 2017/10/31
+ * @since 1.0
+ */
+@Configuration
+public class JobConfig {
+
+    @Autowired
+    private ZkRegistryConfig zkRegistryConfig;
+
+    @Bean(initMethod = "init")
+    public JobScheduler rmaRetryJobScheduler(){
+        // 定义作业核心配置
+        JobCoreConfiguration simpleCoreConfig = JobCoreConfiguration.newBuilder("AddCityJob", "0/15 * * * * ?", 10).build();
+        // 定义SIMPLE类型配置
+        SimpleJobConfiguration simpleJobConfig = new SimpleJobConfiguration(simpleCoreConfig, AddCityJob.class.getCanonicalName());
+        // 定义Lite作业根配置
+        LiteJobConfiguration simpleJobRootConfig = LiteJobConfiguration.newBuilder(simpleJobConfig).build();
+
+
+        //初始化zk
+        CoordinatorRegistryCenter regCenter = new ZookeeperRegistryCenter(new ZookeeperConfiguration("192.168.155.238:2181", "elastic-job-itar"));
+        regCenter.init();
+
+        return new JobScheduler(regCenter, simpleJobRootConfig);
+    }
+
+}
