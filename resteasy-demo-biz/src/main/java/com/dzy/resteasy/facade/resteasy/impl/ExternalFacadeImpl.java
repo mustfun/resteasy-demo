@@ -174,6 +174,7 @@ public class ExternalFacadeImpl implements ExternalFacade {
     @Path("buyXiaoMi")
     @Produces(MediaType.APPLICATION_JSON)
     public Result<Boolean> buyXiaoMi(){
-        return externalBiz.buyXiaoMiWithLock();
+        //return externalBiz.buyXiaoMiWithLock();
+        return externalBiz.buyXiaoMiWithLiteLock();
     }
 }

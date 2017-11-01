@@ -8,6 +8,8 @@ import com.dzy.resteasy.annotation.Reader;
 import com.dzy.resteasy.model.UserCourseDto;
 import com.dzy.resteasy.result.Result;
 import com.dzy.resteasy.service.task.CourseTaskService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Lock;
 
 /**
  * @author dengzhiyuan
@@ -31,6 +34,10 @@ import java.util.concurrent.TimeoutException;
  */
 @Component
 public class ExternalBiz {
+
+    private static final Object lock = new Object();
+
+    private static final Logger log = LoggerFactory.getLogger(ExternalBiz.class);
 
     public static final String MOCK_JSON_URL="http://rapapi.org/mockjsdata/23108/order.soa.biwan.com/getMockJson";
 
@@ -117,28 +124,64 @@ public class ExternalBiz {
         Result<Boolean> result=new Result<>();
         int i = Integer.parseInt(jedis.get(XIAOMI_6S_KEY));
         if (i<=0){
-            result.setStatus(-1);
+            log.warn("正常返回，但是没有抢购到~");
             result.setMessage("抱歉您来晚了，已经卖完啦");
+            result.setStatus(-1);
+            return result;
         }else{
             jedis.set(XIAOMI_6S_KEY,(i-1)+"");
+            log.info("抢购成功，当前库存剩余======{}",(i-1));
         }
         result.setStatus(0);
         result.setMessage("抢购成功，正在跳转订单页面");
+        jedis.set(XIAOMI_6S_KEY,"2000");
         return result;
     }
 
+    /**
+     * 利用轻量锁
+     */
+    public  Result<Boolean> buyXiaoMiWithLiteLock() {
+        Result<Boolean> result=new Result<>();
+        int i;
+        synchronized (lock){
+            i = Integer.parseInt(jedis.get(XIAOMI_6S_KEY));
+        }
+        if (i<=0){
+            log.warn("正常返回，但是没有抢购到~");
+            result.setMessage("抱歉您来晚了，已经卖完啦");
+            result.setStatus(-1);
+            return result;
+        }else{
+            jedis.set(XIAOMI_6S_KEY,(i-1)+"");
+            log.info("抢购成功，当前库存剩余======{}",(i-1));
+        }
+        result.setStatus(0);
+        result.setMessage("抢购成功，正在跳转订单页面");
+        jedis.set(XIAOMI_6S_KEY,"2000");
+        return result;
+    }
+
+
+    /**
+     * 利用重量锁
+     * @return
+     */
     public synchronized   Result<Boolean> buyXiaoMiWithLock() {
         Result<Boolean> result=new Result<>();
         int i = Integer.parseInt(jedis.get(XIAOMI_6S_KEY));
         if (i<=0){
             result.setStatus(-1);
             result.setMessage("抱歉您来晚了，已经卖完啦");
+            log.warn("正常返回，但是没有抢购到~");
+            return result;
         }else{
-            System.out.println("抢购成功，当前库存剩余======"+(i-1));
             jedis.set(XIAOMI_6S_KEY,(i-1)+"");
+            log.info("抢购成功，当前库存剩余======{}",(i-1));
         }
         result.setStatus(0);
         result.setMessage("抢购成功，正在跳转订单页面");
+        jedis.set(XIAOMI_6S_KEY,"2000");
         return result;
     }
 }
