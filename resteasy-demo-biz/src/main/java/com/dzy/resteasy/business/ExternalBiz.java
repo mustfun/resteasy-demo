@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author dengzhiyuan
@@ -35,13 +36,16 @@ import java.util.concurrent.locks.Lock;
 @Component
 public class ExternalBiz {
 
-    private static final Object lock = new Object();
+    private static final Object LOCK = new Object();
 
     private static final Logger log = LoggerFactory.getLogger(ExternalBiz.class);
 
     public static final String MOCK_JSON_URL="http://rapapi.org/mockjsdata/23108/order.soa.biwan.com/getMockJson";
 
     private static final String XIAOMI_6S_KEY="product:android:xiaomi:6s";
+
+    private  ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+
 
     @Autowired
     private RestTemplate restTemplate;
@@ -117,7 +121,7 @@ public class ExternalBiz {
     }
 
     /**
-     * 这样写会抛异常,socket write error
+     * 这样写会抛异常,socket write error，应该是set的时候会并发异常
      * @return
      */
     public  Result<Boolean> buyXiaoMi() {
@@ -134,7 +138,6 @@ public class ExternalBiz {
         }
         result.setStatus(0);
         result.setMessage("抢购成功，正在跳转订单页面");
-        jedis.set(XIAOMI_6S_KEY,"2000");
         return result;
     }
 
@@ -143,8 +146,47 @@ public class ExternalBiz {
      */
     public  Result<Boolean> buyXiaoMiWithLiteLock() {
         Result<Boolean> result=new Result<>();
+        readWriteLock.readLock().lock();
+        int i = 0;
+        try {
+            i = Integer.parseInt(jedis.get(XIAOMI_6S_KEY));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }finally {
+            readWriteLock.readLock().unlock();
+        }
+        if (i<=0){
+            result.setStatus(-1);
+            result.setMessage("抱歉您来晚了，已经卖完啦");
+            log.warn("正常返回，但是没有抢购到~");
+            return result;
+        }else{
+            readWriteLock.writeLock().lock();
+            try {
+                jedis.set(XIAOMI_6S_KEY,(i-1)+"");
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                readWriteLock.writeLock().unlock();
+            }
+            log.info("抢购成功，当前库存剩余======{}",(i-1));
+        }
+        result.setStatus(0);
+        result.setMessage("抢购成功，正在跳转订单页面");
+        return result;
+    }
+
+
+    /**
+     * 利用重量锁
+     * 可以直接放在方法上面，锁方法synchronized
+     * 如果想粒度小一点，那么就要保证锁的是同一个对象，否则，socket(写的时候)还是会报不够用，这里是特殊情况，redis公用同一个socket
+     * @return
+     */
+    public  Result<Boolean> buyXiaoMiWithLock() {
+        Result<Boolean> result=new Result<>();
         int i;
-        synchronized (lock){
+        synchronized (LOCK){
             i = Integer.parseInt(jedis.get(XIAOMI_6S_KEY));
         }
         if (i<=0){
@@ -153,35 +195,37 @@ public class ExternalBiz {
             result.setStatus(-1);
             return result;
         }else{
-            jedis.set(XIAOMI_6S_KEY,(i-1)+"");
-            log.info("抢购成功，当前库存剩余======{}",(i-1));
+            synchronized (LOCK) {
+                jedis.set(XIAOMI_6S_KEY, (i - 1) + "");
+            }
+            log.info("抢购成功，当前库存剩余======{}", (i - 1));
         }
         result.setStatus(0);
         result.setMessage("抢购成功，正在跳转订单页面");
-        jedis.set(XIAOMI_6S_KEY,"2000");
         return result;
     }
 
 
     /**
-     * 利用重量锁
+     * 使用redis特性实现redis分布式锁
+     * setnx需要设置一个过期时间
      * @return
      */
-    public synchronized   Result<Boolean> buyXiaoMiWithLock() {
+    public  Result<Boolean> buyXiaoMiWithRedisLock() {
         Result<Boolean> result=new Result<>();
         int i = Integer.parseInt(jedis.get(XIAOMI_6S_KEY));
         if (i<=0){
-            result.setStatus(-1);
-            result.setMessage("抱歉您来晚了，已经卖完啦");
             log.warn("正常返回，但是没有抢购到~");
+            result.setMessage("抱歉您来晚了，已经卖完啦");
+            result.setStatus(-1);
             return result;
         }else{
             jedis.set(XIAOMI_6S_KEY,(i-1)+"");
+            jedis.setnx(XIAOMI_6S_KEY,(i-1)+"");
             log.info("抢购成功，当前库存剩余======{}",(i-1));
         }
         result.setStatus(0);
         result.setMessage("抢购成功，正在跳转订单页面");
-        jedis.set(XIAOMI_6S_KEY,"2000");
         return result;
     }
 }
