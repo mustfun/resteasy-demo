@@ -34,8 +34,8 @@ public class JobConfig {
         JobCoreConfiguration simpleCoreConfig = JobCoreConfiguration.newBuilder("AddCityJob", "0/15 * * * * ?", 1).build();
         // 定义SIMPLE类型配置
         SimpleJobConfiguration simpleJobConfig = new SimpleJobConfiguration(simpleCoreConfig, addCityJob.getClass().getCanonicalName());
-        // 定义Lite作业根配置
-        LiteJobConfiguration simpleJobRootConfig = LiteJobConfiguration.newBuilder(simpleJobConfig).build();
+        // 定义Lite作业根配置,overwrite=true,允许覆盖客户端费用
+        LiteJobConfiguration simpleJobRootConfig = LiteJobConfiguration.newBuilder(simpleJobConfig).overwrite(true).build();
 
 
         //初始化zk
