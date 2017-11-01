@@ -28,6 +28,6 @@ public class AddCityJob implements SimpleJob {
     @Override
     public void execute(ShardingContext shardingContext) {
         LOG.info("===============>  job start");
-        queryUserInfoBiz.insertUserInfoV6("v6");
+        //queryUserInfoBiz.insertUserInfoV6("v6");
     }
 }

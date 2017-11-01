@@ -29,7 +29,7 @@ public class JobConfig {
     private AddCityJob addCityJob;
 
     @Bean(initMethod = "init")
-    public JobScheduler rmaRetryJobScheduler(){
+    public JobScheduler cityAutoAddJobScheduler(){
         // 定义作业核心配置
         JobCoreConfiguration simpleCoreConfig = JobCoreConfiguration.newBuilder("AddCityJob", "0/15 * * * * ?", 1).build();
         // 定义SIMPLE类型配置
