@@ -146,14 +146,14 @@ public class ExternalBiz {
      */
     public  Result<Boolean> buyXiaoMiWithLiteLock() {
         Result<Boolean> result=new Result<>();
-        readWriteLock.readLock().lock();
+        readWriteLock.writeLock().lock();
         int i = 0;
         try {
             i = Integer.parseInt(jedis.get(XIAOMI_6S_KEY));
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }finally {
-            readWriteLock.readLock().unlock();
+            readWriteLock.writeLock().unlock();
         }
         if (i<=0){
             result.setStatus(-1);
