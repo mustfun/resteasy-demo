@@ -25,7 +25,7 @@ public class Mix2MessageListener implements MessageListenerOrderly {
 
     @Override
     public ConsumeOrderlyStatus consumeMessage(List<MessageExt> msgs, ConsumeOrderlyContext consumeOrderlyContext) {
-        consumeOrderlyContext.setAutoCommit(false);
+        consumeOrderlyContext.setAutoCommit(true);//消息提不提交？设置为true就会把响应给mq?
         LOGGER.info(Thread.currentThread().getName() + " Receive New mix2 Messages: " + msgs);
         for (MessageExt msg : msgs) {
             String m = new String(msg.getBody());

@@ -40,8 +40,8 @@ public class Mix2StoreJob implements SimpleJob {
                     "job test development",//key用于标识业务的唯一性
                     ("this is just a job test ,no other use~" ).getBytes(RemotingHelper.DEFAULT_CHARSET)// body 二进制字节数组
             );
-            SendResult result = defaultMQProducer.send(msg);
-            LOG.info("send message status {}", result);
+            /*SendResult result = defaultMQProducer.send(msg);
+            LOG.info("send message status {}", result);*/
         } catch (Exception e) {
             e.printStackTrace();
         }
