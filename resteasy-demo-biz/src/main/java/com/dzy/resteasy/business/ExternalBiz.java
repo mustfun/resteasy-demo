@@ -5,7 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.util.ParameterizedTypeImpl;
 import com.dzy.resteasy.annotation.Reader;
+import com.dzy.resteasy.biz.impl.MqBiz;
 import com.dzy.resteasy.model.UserCourseDto;
+import com.dzy.resteasy.model.UserInfo;
 import com.dzy.resteasy.result.Result;
 import com.dzy.resteasy.service.task.CourseTaskService;
 import org.slf4j.Logger;
@@ -21,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -52,6 +55,9 @@ public class ExternalBiz {
 
     @Autowired
     private CourseTaskService courseTaskService;
+
+    @Autowired
+    private MqBiz mqBiz;
 
     @Autowired
     private Jedis jedis;
@@ -229,9 +235,13 @@ public class ExternalBiz {
         return result;
     }
 
-    public Result<Boolean> buyXiaoMiWithMq() {
-        Result result  = new Result();
-
+    public Result<Boolean> buyXiaoMiWithMq(Long userId) {
+        Result<Boolean> result  = new Result<>();
+        UserInfo userInfo = new UserInfo();
+        userInfo.setId(userId);
+        userInfo.setUserName(UUID.randomUUID().toString().substring(0,10));
+        mqBiz.sendXiaoMiBeBoughtMessage(userInfo);
+        log.info("发送消息完毕，用户已经进入抢购队列~");
         return result;
     }
 }

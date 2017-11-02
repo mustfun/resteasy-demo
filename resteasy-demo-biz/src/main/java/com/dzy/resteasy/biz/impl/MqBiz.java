@@ -1,15 +1,11 @@
-package com.dzy.resteasy.job;
+package com.dzy.resteasy.biz.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.rocketmq.client.exception.MQBrokerException;
-import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
 import com.alibaba.rocketmq.client.producer.SendResult;
 import com.alibaba.rocketmq.common.message.Message;
 import com.alibaba.rocketmq.remoting.common.RemotingHelper;
-import com.alibaba.rocketmq.remoting.exception.RemotingException;
-import com.dangdang.ddframe.job.api.ShardingContext;
-import com.dangdang.ddframe.job.api.simple.SimpleJob;
+import com.dzy.resteasy.model.UserInfo;
 import com.dzy.resteasy.mq.MqProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,22 +19,24 @@ import org.springframework.stereotype.Component;
  * @since 1.0
  */
 @Component
-public class Mix2StoreJob implements SimpleJob {
+public class MqBiz {
 
-    public static final Logger LOG = LoggerFactory.getLogger(Mix2StoreJob.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MqBiz.class);
 
     @Autowired
     private DefaultMQProducer defaultMQProducer;
     @Autowired
     private MqProducerConfig mqProducerConfig;
 
-    @Override
-    public void execute(ShardingContext shardingContext) {
+    /**
+     * 发送小米被抢购了的消息
+     */
+    public void sendXiaoMiBeBoughtMessage(UserInfo userInfo){
         try {
             Message msg = new Message(mqProducerConfig.getTopic(),// topic
                     mqProducerConfig.getTag(),// tag
-                    "job test development",//key用于标识业务的唯一性
-                    ("this is just a job test ,no other use~" ).getBytes(RemotingHelper.DEFAULT_CHARSET)// body 二进制字节数组
+                    "mix2 sale development",//key用于标识业务的唯一性
+                    (JSON.toJSONString(userInfo)).getBytes(RemotingHelper.DEFAULT_CHARSET)// body 二进制字节数组
             );
             SendResult result = defaultMQProducer.send(msg);
             LOG.info("send message status {}", result);

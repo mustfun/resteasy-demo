@@ -182,9 +182,9 @@ public class ExternalFacadeImpl implements ExternalFacade {
      * 模拟抢购，使用rocket-mq流量削峰
      */
     @GET
-    @Path("buyXiaoMiV2")
+    @Path("buyXiaoMiV2/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Result<Boolean> buyXiaoMiV2(){
-        return externalBiz.buyXiaoMiWithMq();
+    public Result<Boolean> buyXiaoMiV2(@PathParam("userId") Long userId){
+        return externalBiz.buyXiaoMiWithMq(userId);
     }
 }
