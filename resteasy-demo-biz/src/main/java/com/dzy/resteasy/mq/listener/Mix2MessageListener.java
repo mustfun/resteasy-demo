@@ -1,9 +1,7 @@
 package com.dzy.resteasy.mq.listener;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.rocketmq.client.consumer.listener.ConsumeOrderlyContext;
-import com.alibaba.rocketmq.client.consumer.listener.ConsumeOrderlyStatus;
-import com.alibaba.rocketmq.client.consumer.listener.MessageListenerOrderly;
+import com.alibaba.rocketmq.client.consumer.listener.*;
 import com.alibaba.rocketmq.common.message.MessageExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,19 +17,18 @@ import java.util.List;
  * @function 小米mix2的一个messageListener,测试
  */
 @Component
-public class Mix2MessageListener implements MessageListenerOrderly {
+public class Mix2MessageListener implements MessageListenerConcurrently {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(Mix2MessageListener.class);
 
     @Override
-    public ConsumeOrderlyStatus consumeMessage(List<MessageExt> msgs, ConsumeOrderlyContext consumeOrderlyContext) {
-        consumeOrderlyContext.setAutoCommit(true);//消息提不提交？设置为true就会把响应给mq?
+    public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
         LOGGER.info(Thread.currentThread().getName() + " Receive New mix2 Messages: " + msgs);
         for (MessageExt msg : msgs) {
             String m = new String(msg.getBody());
             LOGGER.info("message queueId is {}, and content = {}",msg.getQueueId(),m);
-            return ConsumeOrderlyStatus.SUCCESS;
+            return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }
-        return null;
+        return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
     }
 }

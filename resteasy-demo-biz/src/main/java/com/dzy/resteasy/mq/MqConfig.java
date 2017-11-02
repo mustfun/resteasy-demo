@@ -3,6 +3,7 @@ package com.dzy.resteasy.mq;
 import com.alibaba.rocketmq.client.consumer.DefaultMQPushConsumer;
 import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
+import com.alibaba.rocketmq.common.consumer.ConsumeFromWhere;
 import com.dzy.resteasy.mq.listener.Mix2MessageListener;
 import com.dzy.resteasy.support.config.exception.RocketMQException;
 import org.apache.commons.lang3.StringUtils;
@@ -76,6 +77,7 @@ public class MqConfig {
         consumer.setConsumeThreadMin(consumerConfig.getConsumeThreadMin());
         consumer.setConsumeThreadMax(consumerConfig.getConsumeThreadMax());
         consumer.registerMessageListener(messageListener);
+        consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);
         try {
             consumer.subscribe(consumerConfig.getTopic(),consumerConfig.getTag());
             consumer.start();
