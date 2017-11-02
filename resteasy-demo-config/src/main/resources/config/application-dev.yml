@@ -1,0 +1,143 @@
+####################################### CODIS #####################################
+codis:
+    policy:
+        retry:
+            retryIntervalInMs: 3000
+            retryIntervalIncreasable: true
+            retryTimes: 3
+    pool:
+        connectionTimeoutMs: 10000
+        maxIdle: 80
+        maxTotal: 512
+        minIdle: 10
+        soTimeoutMs: 30000
+    zk:
+        codisProxyPath: /jodis/codis-dzy
+        zkSessionTimeoutInMs: 30000
+        zkUrl: 192.168.155.238:2181
+
+####################################### Database #####################################
+database:
+    master:
+        druid:
+            connectionProperties: connectTimeout=3000;config.decrypt=true
+            driverClassName: com.mysql.jdbc.Driver
+            filters: stat,wall,config
+            initialSize: 3
+            maxActive: 15
+            maxWait: 30000
+            minEvictableIdleTimeMillis: 300000
+            minIdle: 2
+            name: Master
+            password: bNVOqb7WKLX5Bjnw+LMv92taj25KOxDimXxILPQjw42wgv+1lHzOH8kr97xDwWdhpY67QuYCS7sWN4W46YbkFA==
+            testOnBorrow: false
+            testOnReturn: false
+            testWhileIdle: true
+            url: jdbc:mysql://127.0.0.1:3306/biwann?useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false
+            useUnfairLock: true
+            username: root
+            validationQuery: select 1
+            validationQueryTimeout: 2000
+    order0:
+        druid:
+            connectionProperties: connectTimeout=3000;config.decrypt=true
+            driverClassName: com.mysql.jdbc.Driver
+            filters: stat,wall,config
+            initialSize: 3
+            maxActive: 15
+            maxWait: 30000
+            minEvictableIdleTimeMillis: 300000
+            minIdle: 2
+            name: order0
+            password: bNVOqb7WKLX5Bjnw+LMv92taj25KOxDimXxILPQjw42wgv+1lHzOH8kr97xDwWdhpY67QuYCS7sWN4W46YbkFA==
+            testOnBorrow: false
+            testOnReturn: false
+            testWhileIdle: true
+            url: jdbc:mysql://127.0.0.1:3306/order_0?useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false
+            useUnfairLock: true
+            username: root
+            validationQuery: select 1
+            validationQueryTimeout: 2000
+    order1:
+        druid:
+            connectionProperties: connectTimeout=3000;config.decrypt=true
+            driverClassName: com.mysql.jdbc.Driver
+            filters: stat,wall,config
+            initialSize: 3
+            maxActive: 15
+            maxWait: 30000
+            minEvictableIdleTimeMillis: 300000
+            minIdle: 2
+            name: order1
+            password: bNVOqb7WKLX5Bjnw+LMv92taj25KOxDimXxILPQjw42wgv+1lHzOH8kr97xDwWdhpY67QuYCS7sWN4W46YbkFA==
+            testOnBorrow: false
+            testOnReturn: false
+            testWhileIdle: true
+            url: jdbc:mysql://127.0.0.1:3306/order_1?useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false
+            useUnfairLock: true
+            username: root
+            validationQuery: select 1
+            validationQueryTimeout: 2000
+    slave:
+        druid:
+            connectionProperties: connectTimeout=3000;config.decrypt=true
+            driverClassName: com.mysql.jdbc.Driver
+            filters: stat,wall,config
+            initialSize: 3
+            maxActive: 15
+            maxWait: 30000
+            minEvictableIdleTimeMillis: 300000
+            minIdle: 2
+            name: Slave
+            password: bNVOqb7WKLX5Bjnw+LMv92taj25KOxDimXxILPQjw42wgv+1lHzOH8kr97xDwWdhpY67QuYCS7sWN4W46YbkFA==
+            testOnBorrow: false
+            testOnReturn: false
+            testWhileIdle: true
+            url: jdbc:mysql://127.0.0.1:3306/biwann_slave?useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false
+            useUnfairLock: true
+            username: root
+            validationQuery: select 1
+            validationQueryTimeout: 2000
+logging:
+    level:
+        root: INFO
+mq:
+    name: Master
+mybatis:
+    config-location: classpath:mybatis/mybatis-config.xml
+    mapper-locations: classpath*:/mybatis/mapper/*Mapper.xml
+    type-aliases-package: com.dzy.resteasy.dao.mapper
+resteasy:
+    servlet:
+        mapping:
+            prefix: /v1
+server:
+    port: 8080
+
+
+
+###################################MQ###########################################
+
+rocketmq:
+  producer:
+    # 发送同一类消息的设置为同一个group，保证唯一,默认不需要设置，rocketmq会使用ip@pid(pid代表jvm名字)作为唯一标示
+    groupName: vehicleProducerGroup
+    #mq的nameserver地址
+    namesrvAddr: 123.206.175.47:9876;182.254.210.72:9876
+    #如果需要同一个jvm中不同的producer往不同的mq集群发送消息，需要设置不同的instanceName
+    instanceName: vehicleProducer
+    #topic名称
+    topic: TEST
+    #根据实际情况设置消息的tag
+    tag: TEST
+    #消息最大长度
+    maxMessageSize: 131072 # 1024*128
+    #发送消息超时时间
+    sendMsgTimeout: 10000
+  consumer:
+    namesrvAddr: 123.206.175.47:9876;182.254.210.72:9876
+    groupName: vehicleProducerGroup
+    topic: sms
+    tag: verifycode
+    consumeThreadMin: 20
+    consumeThreadMax: 64

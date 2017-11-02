@@ -167,7 +167,7 @@ public class ExternalFacadeImpl implements ExternalFacade {
     }
 
     /**
-     * 模拟抢购，做一些锁的实际应用吧
+     * 模拟抢购，做一些锁的实际应用吧，单机1000qps，没有往上面压了
      * @return
      */
     @GET
@@ -176,5 +176,15 @@ public class ExternalFacadeImpl implements ExternalFacade {
     public Result<Boolean> buyXiaoMi(){
         //return externalBiz.buyXiaoMiWithLock();
         return externalBiz.buyXiaoMiWithLiteLock();
+    }
+
+    /**
+     * 模拟抢购，使用rocket-mq流量削峰
+     */
+    @GET
+    @Path("buyXiaoMiV2")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Result<Boolean> buyXiaoMiV2(){
+        return externalBiz.buyXiaoMiWithMq();
     }
 }

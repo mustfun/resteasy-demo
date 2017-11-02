@@ -228,4 +228,10 @@ public class ExternalBiz {
         result.setMessage("抢购成功，正在跳转订单页面");
         return result;
     }
+
+    public Result<Boolean> buyXiaoMiWithMq() {
+        Result result  = new Result();
+
+        return result;
+    }
 }
