@@ -101,16 +101,20 @@ database:
 logging:
     level:
         root: INFO
-mq:
-    name: Master
+
+################################### mybatis ###########################################
 mybatis:
     config-location: classpath:mybatis/mybatis-config.xml
     mapper-locations: classpath*:/mybatis/mapper/*Mapper.xml
     type-aliases-package: com.dzy.resteasy.dao.mapper
+
+################################### resteasy ###########################################
 resteasy:
     servlet:
         mapping:
             prefix: /v1
+################################### server ###########################################
+
 server:
     port: 8080
 
@@ -121,23 +125,23 @@ server:
 rocketmq:
   producer:
     # 发送同一类消息的设置为同一个group，保证唯一,默认不需要设置，rocketmq会使用ip@pid(pid代表jvm名字)作为唯一标示
-    groupName: vehicleProducerGroup
+    groupName: xiaoMiMix2ProducerGroup
     #mq的nameserver地址
-    namesrvAddr: 123.206.175.47:9876;182.254.210.72:9876
+    namesrvAddr: 192.168.155.238:9876
     #如果需要同一个jvm中不同的producer往不同的mq集群发送消息，需要设置不同的instanceName
-    instanceName: vehicleProducer
+    instanceName: mix2Producer
     #topic名称
-    topic: TEST
+    topic: mix2Topic
     #根据实际情况设置消息的tag
-    tag: TEST
+    tag: mix2Tag
     #消息最大长度
     maxMessageSize: 131072 # 1024*128
     #发送消息超时时间
     sendMsgTimeout: 10000
   consumer:
-    namesrvAddr: 123.206.175.47:9876;182.254.210.72:9876
-    groupName: vehicleProducerGroup
-    topic: sms
-    tag: verifycode
+    namesrvAddr: 192.168.155.238:9876
+    groupName: xiaoMiMix2ProducerGroup
+    topic: mix2Topic
+    tag: mix2Tag
     consumeThreadMin: 20
     consumeThreadMax: 64

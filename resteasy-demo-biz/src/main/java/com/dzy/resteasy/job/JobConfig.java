@@ -27,6 +27,8 @@ public class JobConfig {
 
     @Autowired
     private AddCityJob addCityJob;
+    @Autowired
+    private Mix2StoreJob mix2StoreJob;
 
     @Bean(initMethod = "init")
     public JobScheduler cityAutoAddJobScheduler(){
@@ -44,6 +46,24 @@ public class JobConfig {
 
         //为了跟spring兼容，new一个SpringJobScheduler
         return new SpringJobScheduler(addCityJob,regCenter, simpleJobRootConfig);
+    }
+
+    @Bean(initMethod = "init")
+    public JobScheduler mix2StoreJobScheduler(){
+        // 定义作业核心配置
+        JobCoreConfiguration simpleCoreConfig = JobCoreConfiguration.newBuilder("Mix2StoreJob", "0/15 * * * * ?", 1).build();
+        // 定义SIMPLE类型配置
+        SimpleJobConfiguration simpleJobConfig = new SimpleJobConfiguration(simpleCoreConfig, mix2StoreJob.getClass().getCanonicalName());
+        // 定义Lite作业根配置,overwrite=true,允许覆盖客户端费用
+        LiteJobConfiguration simpleJobRootConfig = LiteJobConfiguration.newBuilder(simpleJobConfig).overwrite(true).build();
+
+
+        //初始化zk
+        CoordinatorRegistryCenter regCenter = new ZookeeperRegistryCenter(new ZookeeperConfiguration(zkRegistryConfig.getZkUrl(), "elastic-job-itar"));
+        regCenter.init();
+
+        //为了跟spring兼容，new一个SpringJobScheduler
+        return new SpringJobScheduler(mix2StoreJob,regCenter, simpleJobRootConfig);
     }
 
 }
