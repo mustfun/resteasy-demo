@@ -48,7 +48,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Bean
     public RestTemplate restTemplate() {
-        RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
+        //下面这种写法流可以读写多次
+        //RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
+        RestTemplate restTemplate = new RestTemplate();
         List<HttpMessageConverter<?>>  converterList = restTemplate.getMessageConverters();
         HttpMessageConverter<?> converterTarget = null;
         for (HttpMessageConverter<?> item : converterList) {

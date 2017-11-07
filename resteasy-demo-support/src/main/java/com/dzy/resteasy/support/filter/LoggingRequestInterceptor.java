@@ -1,5 +1,6 @@
 package com.dzy.resteasy.support.filter;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
@@ -29,8 +30,8 @@ public class LoggingRequestInterceptor implements ClientHttpRequestInterceptor {
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
         traceRequest(request, body);
         ClientHttpResponse response = execution.execute(request, body);
-        traceResponse(response);
-        return response;
+        ClientHttpResponse clientHttpResponse = traceResponse(response);
+        return clientHttpResponse;
     }
 
     private void traceRequest(HttpRequest request, byte[] body) throws IOException {
@@ -42,23 +43,17 @@ public class LoggingRequestInterceptor implements ClientHttpRequestInterceptor {
         log.debug("==========================request end================================================");
     }
 
-    private void traceResponse(ClientHttpResponse response) throws IOException {
-        StringBuilder inputStringBuilder = new StringBuilder();
-        byte[] bytes = StreamUtils.copyToByteArray(response.getBody());
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes), "UTF-8"));
+    private ClientHttpResponse traceResponse(ClientHttpResponse response) throws IOException {
+        final ClientHttpResponse responseCopy = new BufferingClientHttpResponseWrapper(response);
 
-        String line = bufferedReader.readLine();
-        while (line != null) {
-            inputStringBuilder.append(line);
-            inputStringBuilder.append('\n');
-            line = bufferedReader.readLine();
-        }
         log.debug("============================response begin==========================================");
         log.debug("Status code  : {}", response.getStatusCode());
         log.debug("Status text  : {}", response.getStatusText());
         log.debug("Headers      : {}", response.getHeaders());
-        log.debug("Response body: {}", inputStringBuilder.toString());
+        log.debug("Response body: {}", IOUtils.toString(responseCopy.getBody(),"utf-8"));
         log.debug("=======================response end=================================================");
+
+        return responseCopy;
     }
 
 }
