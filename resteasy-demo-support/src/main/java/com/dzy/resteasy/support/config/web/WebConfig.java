@@ -4,8 +4,10 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter4;
+import com.dzy.resteasy.support.filter.LoggingRequestInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.AntPathMatcher;
@@ -16,6 +18,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,6 +60,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         }
         HttpMessageConverter<?> converter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
         converterList.add(1,converter);
+        List<ClientHttpRequestInterceptor> interceptors = new ArrayList<ClientHttpRequestInterceptor>();
+        interceptors.add(new LoggingRequestInterceptor());
+        restTemplate.setInterceptors(interceptors);
         return restTemplate;
     }
 
