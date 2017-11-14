@@ -20,6 +20,8 @@ import java.util.Set;
  * @ 这篇文章也可以：https://webcache.googleusercontent.com/search?q=cache:p9zGiEIvcPMJ:https://www.isostech.com/blogs/software-development/preventing-duplicate-submissions-spring-mvc/+&cd=6&hl=en&ct=clnk&gl=nl
  * 不过用到了spring security
  * @function 下面这种方式实现比较简单
+ *
+ * @ 还可以把所有的参数和URL拼接起来，然后md5,放到一个并发map里面，这样也可以，跟下面原理类似
  */
 //@Component
 public class SingleSubmitInterceptor extends HandlerInterceptorAdapter{
