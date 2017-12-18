@@ -26,6 +26,7 @@ public class ResponseWrapper extends HttpServletResponseWrapper {
 
     /**
      * 巧妙将ServletOutputStream放到公共变量，解决不能多次读写问题
+     * 你确定这多线程下不会出问题？？？
      * @return
      * @throws IOException
      */
