@@ -41,4 +41,15 @@ public class GlobalExceptionHandlingControllerAdvice {
         return baseResult;
     }
 
+
+    @ResponseBody
+    @ExceptionHandler(Exception.class)
+    public BaseResult handlerAllException() {
+        logger.error("请求发生404异常");
+        BaseResult baseResult = new BaseResult();
+        baseResult.setStatus(-500);
+        baseResult.setMessage("服务器开小差啦，怎么办呀");
+        return baseResult;
+    }
+
 }
