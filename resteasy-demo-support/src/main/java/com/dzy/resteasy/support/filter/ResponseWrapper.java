@@ -16,8 +16,8 @@ import java.io.IOException;
  */
 public class ResponseWrapper extends HttpServletResponseWrapper {
 
-    ByteArrayOutputStream output;
-    ServletOutputStream filterOutput;
+    private ByteArrayOutputStream output;
+    private ServletOutputStream filterOutput;
 
     public ResponseWrapper(HttpServletResponse response) {
         super(response);
