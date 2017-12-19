@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 1.0
  */
 @RestController
-@RequestMapping("/common")
+@RequestMapping({"/common","/never"})
 public class CommonControllerImpl{
 
     @RequestMapping(value = "/getBaseResult",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE) @ResponseBody public JSONObject getBaseResult() {
