@@ -43,6 +43,9 @@ public class BranchResponseWrapperFilter extends OncePerRequestFilter {
             jsonObject.put("data",parse);
             LOGGER.info("response is ============{}",jsonObject);
             response.setContentType("application/json;charset=utf-8");
+            //将buffer重置，因为我们要重新写入流进去
+            response.resetBuffer();
+            response.setContentLength(JSON.toJSONBytes(jsonObject).length);
             response.getOutputStream().write(JSON.toJSONBytes(jsonObject));
         } catch (Exception e) {
             LOGGER.error("数据包装器执行出错....{}", e);

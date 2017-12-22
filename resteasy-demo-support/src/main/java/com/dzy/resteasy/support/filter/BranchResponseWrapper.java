@@ -29,11 +29,11 @@ public class BranchResponseWrapper extends HttpServletResponseWrapper {
 
     public BranchResponseWrapper(HttpServletResponse response) {
         super(response);
-        try {
+        /*try {
             bufferOutputStream = response.getOutputStream();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
         output = new ByteArrayOutputStream();
     }
 
@@ -51,7 +51,8 @@ public class BranchResponseWrapper extends HttpServletResponseWrapper {
                 //替换构造方法
                 //拿父类的response，初始化的时候，里面还没有数据，只有一些request信息和response信息,但是调用了创建outputStream,
                 // 但是 但是 但是 ===》 创建了之后就不能修改了，无法达到修改response的结果
-                private TeeOutputStream teeOutputStream = new TeeOutputStream(bufferOutputStream,output);
+                //private TeeOutputStream teeOutputStream = new TeeOutputStream(bufferOutputStream,output);
+                private TeeOutputStream teeOutputStream = new TeeOutputStream(BranchResponseWrapper.super.getOutputStream(),output);
 
                 @Override
                 public boolean isReady() {
