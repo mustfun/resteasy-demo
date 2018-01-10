@@ -6,11 +6,30 @@
     <!--数据库驱动-->
     <classPathEntry location="E:\Work\repo\mysql\mysql-connector-java\5.1.39\mysql-connector-java-5.1.39.jar"/>
     <context id="DB2Tables"    targetRuntime="MyBatis3">
+
+        <!--plugin注意放在comment的前面-->
+        <plugin type="com.dzy.resteasy.plugins.SwaggerPlugin">
+        </plugin>
+
+        <!-- 生成一个sqlMap-config文件，spring boot无效
+        <plugin type="org.mybatis.generator.plugins.MapperConfigPlugin">
+            <property name="targetProject" value="target/generated-sources/mbg"/>
+            <property name="targetPackage" value="mybatis.mapper"/>
+            <property name="fileName " value="ExtMapper.xml"/>
+        </plugin>
+        -->
+        <plugin type="com.dzy.resteasy.plugins.ExtMapperPlugin">
+        </plugin>
+        <plugin type="com.dzy.resteasy.plugins.ExtDomainPlugin">
+        </plugin>
+
+
+
         <!--关闭注释 -->
-        <commentGenerator>
-            <property name="suppressDate" value="true"/>
-            <property name="suppressAllComments" value="true"/>
+        <commentGenerator type="com.dzy.resteasy.plugins.DataBaseCommentGenerator">
+            
         </commentGenerator>
+
         <!--数据库链接地址账号密码-->
         <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://localhost:3306/biwann" userId="root" password="root">
         </jdbcConnection>
@@ -31,8 +50,9 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
         <!--生成对应表及类名-->
-        <table tableName="city" domainObjectName="City" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>
-        <table tableName="user_info" domainObjectName="UserInfo" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>
+        <table tableName="city" domainObjectName="City" mapperName="CityDao"  enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>
+        <table tableName="user_info" domainObjectName="UserInfo" mapperName="UserInfoDao" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>
+
 
     </context>
 </generatorConfiguration>
