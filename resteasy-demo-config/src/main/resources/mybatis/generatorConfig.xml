@@ -8,8 +8,6 @@
     <context id="DB2Tables"    targetRuntime="MyBatis3">
 
         <!--plugin注意放在comment的前面-->
-        <plugin type="com.dzy.resteasy.plugins.SwaggerPlugin">
-        </plugin>
 
         <!-- 生成一个sqlMap-config文件，spring boot无效
         <plugin type="org.mybatis.generator.plugins.MapperConfigPlugin">

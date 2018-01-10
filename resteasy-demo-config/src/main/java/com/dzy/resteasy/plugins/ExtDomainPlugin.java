@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -63,49 +62,51 @@ public class ExtDomainPlugin extends PluginAdapter {
 
     @Override
     public List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles(IntrospectedTable introspectedTable) {
-        SimpleModelGenerator repository = new SimpleModelGenerator();
+        ComplexModelGenerator repository = new ComplexModelGenerator();
         repository.setContext(context);
         repository.setIntrospectedTable(introspectedTable);
-        repository.setProgressCallback(new ProgressCallback() {
-            @Override
-            public void introspectionStarted(int totalTasks) {
-
-            }
-
-            @Override
-            public void generationStarted(int totalTasks) {
-
-            }
-
-            @Override
-            public void saveStarted(int totalTasks) {
-
-            }
-
-            @Override
-            public void startTask(String taskName) {
-
-            }
-
-            @Override
-            public void done() {
-
-            }
-
-            @Override
-            public void checkCancel() throws InterruptedException {
-
-            }
-        });
+        repository.setProgressCallback(new DomainExtProgressCallback());
         List<CompilationUnit> units = repository.getCompilationUnits();
 
         List<GeneratedJavaFile> generatedFile = new ArrayList<>();
         GeneratedJavaFile gif;
         for (CompilationUnit unit : units) {
-            gif = new GeneratedJavaFile(unit,context.getJavaModelGeneratorConfiguration().getTargetProject()+"/po",
+            gif = new GeneratedJavaFile(unit,"E:\\Code\\Java\\resteasy-demo\\resteasy-demo-config\\target",
                     context.getProperty("javaFileEncoding"),context.getJavaFormatter());
             generatedFile.add(gif);
         }
         return generatedFile;
+    }
+
+    private  class DomainExtProgressCallback implements ProgressCallback {
+        @Override
+        public void introspectionStarted(int totalTasks) {
+
+        }
+
+        @Override
+        public void generationStarted(int totalTasks) {
+
+        }
+
+        @Override
+        public void saveStarted(int totalTasks) {
+
+        }
+
+        @Override
+        public void startTask(String taskName) {
+
+        }
+
+        @Override
+        public void done() {
+
+        }
+
+        @Override
+        public void checkCancel() throws InterruptedException {
+
+        }
     }
 }
