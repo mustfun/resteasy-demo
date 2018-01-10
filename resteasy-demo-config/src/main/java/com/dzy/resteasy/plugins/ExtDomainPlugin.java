@@ -27,10 +27,11 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.codegen.mybatis3.model.SimpleModelGenerator;
 import org.mybatis.generator.config.Context;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.logging.Log;
+import org.mybatis.generator.logging.LogFactory;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,7 @@ import java.util.List;
  */
 public class ExtDomainPlugin extends PluginAdapter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ExtDomainPlugin.class);
+    private static final Log logger = LogFactory.getLog(ExtDomainPlugin.class);
 
     private Context context;
 
@@ -60,19 +61,27 @@ public class ExtDomainPlugin extends PluginAdapter {
     }
 
 
+
     @Override
     public List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles(IntrospectedTable introspectedTable) {
         ComplexModelGenerator repository = new ComplexModelGenerator();
         repository.setContext(context);
         repository.setIntrospectedTable(introspectedTable);
         repository.setProgressCallback(new DomainExtProgressCallback());
+        logger.debug("====|||===="+context.getJavaModelGeneratorConfiguration().getTargetProject());
         List<CompilationUnit> units = repository.getCompilationUnits();
 
         List<GeneratedJavaFile> generatedFile = new ArrayList<>();
         GeneratedJavaFile gif;
         for (CompilationUnit unit : units) {
-            gif = new GeneratedJavaFile(unit,"E:\\Code\\Java\\resteasy-demo\\resteasy-demo-config\\target",
-                    context.getProperty("javaFileEncoding"),context.getJavaFormatter());
+            //设置类名
+            unit.getType().getShortNameWithoutTypeArguments();
+            gif = new GeneratedJavaFile(unit,
+                    context.getJavaModelGeneratorConfiguration().getTargetProject(),
+                    context.getProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING),
+                    context.getJavaFormatter());
+            logger.debug("====|||===="+unit.getType().getPackageName());
+            logger.debug("====|||===="+gif.getFileName());
             generatedFile.add(gif);
         }
         return generatedFile;

@@ -84,8 +84,6 @@ public class ComplexModelGenerator extends AbstractJavaGenerator {
         }
 
         String rootClass = getRootClass();
-        //手动触发plugin的一些功能
-        plugins.modelBaseRecordClassGenerated(topLevelClass, introspectedTable);
         //如有字段，就给字段加上plugin的一些功能
         for (IntrospectedColumn introspectedColumn : introspectedColumns) {
             if (RootClassInfo.getInstance(rootClass, warnings)
@@ -120,7 +118,7 @@ public class ComplexModelGenerator extends AbstractJavaGenerator {
         }
 
         List<CompilationUnit> answer = new ArrayList<CompilationUnit>();
-        if (context.getPlugins().modelBaseRecordClassGenerated(topLevelClass,
+        if (plugins.modelBaseRecordClassGenerated(topLevelClass,
                 introspectedTable)) {
             answer.add(topLevelClass);
         }
