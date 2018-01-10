@@ -31,13 +31,12 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.XmlConstants;
 import org.mybatis.generator.config.Context;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.mybatis.generator.logging.Log;
+import org.mybatis.generator.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 /**
  * @author dengzhiyuan
@@ -47,7 +46,7 @@ import java.util.Random;
  */
 public class ExtMapperPlugin extends PluginAdapter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ExtMapperPlugin.class);
+    private static final Log logger = LogFactory.getLog(ExtDomainPlugin.class);
 
     private Context context;
 

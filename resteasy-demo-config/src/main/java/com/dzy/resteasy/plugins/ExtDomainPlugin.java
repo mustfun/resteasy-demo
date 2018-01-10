@@ -64,24 +64,22 @@ public class ExtDomainPlugin extends PluginAdapter {
 
     @Override
     public List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles(IntrospectedTable introspectedTable) {
+        logger.debug("start generate req or resp");
         ComplexModelGenerator repository = new ComplexModelGenerator();
         repository.setContext(context);
         repository.setIntrospectedTable(introspectedTable);
         repository.setProgressCallback(new DomainExtProgressCallback());
-        logger.debug("====|||===="+context.getJavaModelGeneratorConfiguration().getTargetProject());
         List<CompilationUnit> units = repository.getCompilationUnits();
 
         List<GeneratedJavaFile> generatedFile = new ArrayList<>();
         GeneratedJavaFile gif;
         for (CompilationUnit unit : units) {
             //设置类名
-            unit.getType().getShortNameWithoutTypeArguments();
+
             gif = new GeneratedJavaFile(unit,
                     context.getJavaModelGeneratorConfiguration().getTargetProject(),
                     context.getProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING),
                     context.getJavaFormatter());
-            logger.debug("====|||===="+unit.getType().getPackageName());
-            logger.debug("====|||===="+gif.getFileName());
             generatedFile.add(gif);
         }
         return generatedFile;

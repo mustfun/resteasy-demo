@@ -29,6 +29,7 @@ import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.RootClassInfo;
+import org.mybatis.generator.internal.PluginAggregator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,12 @@ public class ComplexModelGenerator extends AbstractJavaGenerator {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         //开始生成table
         progressCallback.startTask(getString("Progress.8", table.toString()));
-        Plugin plugins = new SwaggerPlugin();
+
+        PluginAggregator plugins = new PluginAggregator();
+        plugins.addPlugin(new SwaggerPlugin());
+        plugins.addPlugin(new RenameFilePlugin());
+
+
         CommentGenerator commentGenerator = context.getCommentGenerator();
 
         FullyQualifiedJavaType type = new FullyQualifiedJavaType(

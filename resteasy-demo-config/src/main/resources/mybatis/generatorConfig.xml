@@ -35,7 +35,7 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!--生成Model类存放位置-->
-        <javaModelGenerator targetPackage="com.dzy.resteasy.model" targetProject="MAVEN">
+        <javaModelGenerator targetPackage="com.dzy.resteasy.model.po" targetProject="MAVEN">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
