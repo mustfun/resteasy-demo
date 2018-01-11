@@ -22,6 +22,9 @@
 
 package com.dzy.resteasy.plugins;
 
+import com.dzy.resteasy.constants.LineConstants;
+import com.dzy.resteasy.model.BaseDomain;
+import com.dzy.resteasy.utils.Utils;
 import org.mybatis.generator.api.GeneratedJavaFile;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
@@ -29,11 +32,12 @@ import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.internal.PluginAggregator;
 import org.mybatis.generator.logging.Log;
 import org.mybatis.generator.logging.LogFactory;
 
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -49,9 +53,22 @@ public class ExtDomainPlugin extends PluginAdapter {
 
     private Context context;
 
+    private List<BaseDomain> domainList;
+
+    public ExtDomainPlugin() {
+        domainList = new ArrayList<>();
+    }
 
     @Override
     public boolean validate(List<String> warnings) {
+        List<String> domainNameList = Arrays.asList("dto", "req", "resp", "bo");
+        for (String s : domainNameList) {
+            BaseDomain baseDomain = new BaseDomain();
+            String dto = properties.getProperty(s,"false");
+            baseDomain.setName(s);
+            baseDomain.setValue(dto);
+            domainList.add(baseDomain);
+        }
         return true;
     }
 
@@ -65,17 +82,15 @@ public class ExtDomainPlugin extends PluginAdapter {
     @Override
     public List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles(IntrospectedTable introspectedTable) {
         logger.debug("start generate req or resp");
-        ComplexModelGenerator repository = new ComplexModelGenerator();
-        repository.setContext(context);
-        repository.setIntrospectedTable(introspectedTable);
-        repository.setProgressCallback(new DomainExtProgressCallback());
-        List<CompilationUnit> units = repository.getCompilationUnits();
-
+        List<CompilationUnit> units = new ArrayList<>();
+        for (BaseDomain baseDomain : domainList) {
+            //设置需要生成的dto
+            checkNeedToGenerate(introspectedTable, units, baseDomain, context);
+        }
         List<GeneratedJavaFile> generatedFile = new ArrayList<>();
         GeneratedJavaFile gif;
         for (CompilationUnit unit : units) {
             //设置类名
-
             gif = new GeneratedJavaFile(unit,
                     context.getJavaModelGeneratorConfiguration().getTargetProject(),
                     context.getProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING),
@@ -84,6 +99,37 @@ public class ExtDomainPlugin extends PluginAdapter {
         }
         return generatedFile;
     }
+
+    private void checkNeedToGenerate(IntrospectedTable introspectedTable, List<CompilationUnit> units, BaseDomain dto, Context context) {
+        if (LineConstants.TRUE.equalsIgnoreCase(dto.getValue())) {
+            ComplexModelGenerator repository = new ComplexModelGenerator();
+            repository.setContext(context);
+            repository.setIntrospectedTable(introspectedTable);
+            if (dto.getName().equalsIgnoreCase("req")||dto.getName().equalsIgnoreCase("resp")||dto.getName().equalsIgnoreCase("dto")){
+                PluginAggregator plugins = new PluginAggregator();
+                plugins.addPlugin(new SwaggerPlugin());
+                repository.setPlugins(plugins);
+            }
+            setIntrospectedTableType(introspectedTable,dto.getName());
+            repository.setProgressCallback(new DomainExtProgressCallback());
+            List<CompilationUnit> dtoUnits = repository.getCompilationUnits();
+            units.addAll(dtoUnits);
+        }
+    }
+
+    /**
+     * 根据配置的参数决定是否生成bo 、req、resp、dto等
+     */
+    private IntrospectedTable setIntrospectedTableType(IntrospectedTable introspectedTable,String type){
+        String fullPath = introspectedTable.getBaseRecordType();
+        String prefixPath = fullPath.substring(0, fullPath.lastIndexOf("."));
+        prefixPath = prefixPath.substring(0, prefixPath.lastIndexOf("."));
+        String updatedFullPath = prefixPath+"."+type+"."+introspectedTable.getFullyQualifiedTable().getDomainObjectName()+ Utils.upperFirstCase(type);
+        logger.debug("after rename "+updatedFullPath);
+        introspectedTable.setBaseRecordType(updatedFullPath);
+        return introspectedTable;
+    }
+
 
     private  class DomainExtProgressCallback implements ProgressCallback {
         @Override

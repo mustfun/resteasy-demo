@@ -20,39 +20,21 @@
  * THE SOFTWARE.
  */
 
-package com.dzy.resteasy.plugins;
-
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.PluginAdapter;
-import org.mybatis.generator.logging.Log;
-import org.mybatis.generator.logging.LogFactory;
-
-import java.util.List;
+package com.dzy.resteasy.utils;
 
 /**
  * @author dengzhiyuan
  * @version 1.0
- * @date 2018/1/10
+ * @date 2018/1/11
  * @since 1.0
  */
-public class RenameFilePlugin extends PluginAdapter {
+public class Utils {
 
-    private static final Log logger = LogFactory.getLog(ExtDomainPlugin.class);
-
-
-    @Override
-    public boolean validate(List<String> warnings) {
-        return true;
-    }
-
-    @Override
-    public void initialized(IntrospectedTable introspectedTable) {
-        String fullPath = introspectedTable.getBaseRecordType();
-        logger.debug("rename model to po "+ fullPath+"~");
-        String prefixPath = fullPath.substring(0, fullPath.lastIndexOf("."));
-        logger.debug("before rename "+ prefixPath);
-        prefixPath = prefixPath.substring(0, prefixPath.lastIndexOf("."));
-        logger.debug("after rename "+prefixPath);
-        introspectedTable.setBaseRecordType(prefixPath+".dto."+introspectedTable.getFullyQualifiedTable().getDomainObjectName()+"Dto");
+    public static String upperFirstCase(String str) {
+        char[] ch = str.toCharArray();
+        if (ch[0] >= 'a' && ch[0] <= 'z') {
+            ch[0] = (char) (ch[0] - 32);
+        }
+        return new String(ch);
     }
 }

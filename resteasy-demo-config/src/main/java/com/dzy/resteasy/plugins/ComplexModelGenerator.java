@@ -30,6 +30,8 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.RootClassInfo;
 import org.mybatis.generator.internal.PluginAggregator;
+import org.mybatis.generator.logging.Log;
+import org.mybatis.generator.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +50,13 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
  */
 public class ComplexModelGenerator extends AbstractJavaGenerator {
 
+    private static final Log logger = LogFactory.getLog(ExtDomainPlugin.class);
+
+    private PluginAggregator plugins;
+
     public ComplexModelGenerator() {
         super();
+        plugins = new PluginAggregator();
     }
 
     @Override
@@ -58,16 +65,15 @@ public class ComplexModelGenerator extends AbstractJavaGenerator {
         //开始生成table
         progressCallback.startTask(getString("Progress.8", table.toString()));
 
-        PluginAggregator plugins = new PluginAggregator();
-        plugins.addPlugin(new SwaggerPlugin());
-        plugins.addPlugin(new RenameFilePlugin());
-
-
         CommentGenerator commentGenerator = context.getCommentGenerator();
+        //类前初始化
+        plugins.initialized(introspectedTable);
 
         FullyQualifiedJavaType type = new FullyQualifiedJavaType(
                 introspectedTable.getBaseRecordType());
+        logger.debug("tag:1"+introspectedTable.getBaseRecordType());
         TopLevelClass topLevelClass = new TopLevelClass(type);
+        logger.debug("tag:2"+topLevelClass.getType().toString());
         topLevelClass.setVisibility(JavaVisibility.PUBLIC);
         commentGenerator.addJavaFileComment(topLevelClass);
 
@@ -127,7 +133,10 @@ public class ComplexModelGenerator extends AbstractJavaGenerator {
         if (plugins.modelBaseRecordClassGenerated(topLevelClass,
                 introspectedTable)) {
             answer.add(topLevelClass);
+            //mock
+            TopLevelClass newTop=new TopLevelClass("");
         }
+        logger.debug("generate dto complate"+introspectedTable.getBaseRecordType());
         return answer;
     }
 
@@ -190,5 +199,13 @@ public class ComplexModelGenerator extends AbstractJavaGenerator {
         }
 
         topLevelClass.addMethod(method);
+    }
+
+    public PluginAggregator getPlugins() {
+        return plugins;
+    }
+
+    public void setPlugins(PluginAggregator plugins) {
+        this.plugins = plugins;
     }
 }

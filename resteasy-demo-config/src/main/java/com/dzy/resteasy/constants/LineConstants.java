@@ -55,4 +55,5 @@ public class LineConstants {
             " * THE SOFTWARE.\n" +
             " */";
 
+    public static final String TRUE = "TRUE";
 }

@@ -18,7 +18,13 @@
         -->
         <plugin type="com.dzy.resteasy.plugins.ExtMapperPlugin">
         </plugin>
+        <!--<plugin type="com.dzy.resteasy.plugins.RenameFilePlugin">
+        </plugin>-->
         <plugin type="com.dzy.resteasy.plugins.ExtDomainPlugin">
+            <property name="dto" value="true"/>
+            <property name="req" value="true"/>
+            <property name="bo" value="true"/>
+            <property name="resp" value="true"/>
         </plugin>
 
 
