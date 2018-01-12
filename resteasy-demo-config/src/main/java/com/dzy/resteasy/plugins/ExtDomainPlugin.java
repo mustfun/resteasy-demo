@@ -24,6 +24,7 @@ package com.dzy.resteasy.plugins;
 
 import com.dzy.resteasy.constants.LineConstants;
 import com.dzy.resteasy.model.BaseDomain;
+import com.dzy.resteasy.utils.GenerateFilePackageHolder;
 import com.dzy.resteasy.utils.Utils;
 import org.mybatis.generator.api.GeneratedJavaFile;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -77,8 +78,6 @@ public class ExtDomainPlugin extends PluginAdapter {
         this.context = context;
     }
 
-
-
     @Override
     public List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles(IntrospectedTable introspectedTable) {
         logger.debug("start generate req or resp");
@@ -121,11 +120,14 @@ public class ExtDomainPlugin extends PluginAdapter {
      * 根据配置的参数决定是否生成bo 、req、resp、dto等
      */
     private IntrospectedTable setIntrospectedTableType(IntrospectedTable introspectedTable,String type){
-        String fullPath = introspectedTable.getBaseRecordType();
+        //到po那里
+        String fullPath = context.getJavaModelGeneratorConfiguration().getTargetPackage();
+        logger.debug("before rename po "+fullPath);
         String prefixPath = fullPath.substring(0, fullPath.lastIndexOf("."));
-        prefixPath = prefixPath.substring(0, prefixPath.lastIndexOf("."));
         String updatedFullPath = prefixPath+"."+type+"."+introspectedTable.getFullyQualifiedTable().getDomainObjectName()+ Utils.upperFirstCase(type);
-        logger.debug("after rename "+updatedFullPath);
+        logger.debug("after rename po "+updatedFullPath);
+        GenerateFilePackageHolder.init();
+        GenerateFilePackageHolder.setPackageName(type,updatedFullPath);
         introspectedTable.setBaseRecordType(updatedFullPath);
         return introspectedTable;
     }
