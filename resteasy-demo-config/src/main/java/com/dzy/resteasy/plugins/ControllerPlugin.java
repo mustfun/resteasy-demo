@@ -22,11 +22,14 @@
 
 package com.dzy.resteasy.plugins;
 
+import com.dzy.resteasy.utils.Utils;
 import org.mybatis.generator.api.GeneratedJavaFile;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.logging.Log;
+import org.mybatis.generator.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +41,10 @@ import java.util.List;
  * @since 1.0
  */
 public class ControllerPlugin extends PluginAdapter {
+
+    private static final Log logger = LogFactory.getLog(ControllerPlugin.class);
+
+
     @Override
     public boolean validate(List<String> warnings) {
         return true;
@@ -49,6 +56,7 @@ public class ControllerPlugin extends PluginAdapter {
         List<CompilationUnit> units;
         ControllerGenerator controllerGenerator = new ControllerGenerator();
         controllerGenerator.setContext(context);
+        setIntrospectedTableType(introspectedTable,"controller");
         controllerGenerator.setIntrospectedTable(introspectedTable);
 
         units = controllerGenerator.getCompilationUnits();
@@ -63,5 +71,16 @@ public class ControllerPlugin extends PluginAdapter {
             generatedFile.add(gif);
         }
         return generatedFile;
+    }
+
+    private void setIntrospectedTableType(IntrospectedTable introspectedTable,String type){
+        //到po那里
+        String fullPath = context.getJavaModelGeneratorConfiguration().getTargetPackage();
+        logger.debug("before rename controller "+fullPath);
+        String prefixPath = fullPath.substring(0, fullPath.lastIndexOf("."));
+        prefixPath = prefixPath.substring(0, prefixPath.lastIndexOf("."));
+        String updatedFullPath = prefixPath+"."+type+"."+introspectedTable.getFullyQualifiedTable().getDomainObjectName()+ Utils.upperFirstCase(type);
+        logger.debug("after rename controller "+updatedFullPath);
+        introspectedTable.setBaseRecordType(updatedFullPath);
     }
 }

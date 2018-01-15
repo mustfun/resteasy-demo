@@ -22,10 +22,11 @@
 
 package com.dzy.resteasy.plugins;
 
-import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.Interface;
-import org.mybatis.generator.api.dom.java.JavaVisibility;
+import com.dzy.resteasy.method.controller.AbstractControllerImplMethodGenerator;
+import com.dzy.resteasy.method.controller.InsertSelectiveControllerMethodGenerator;
+import com.dzy.resteasy.utils.GenerateFilePackageHolder;
+import com.dzy.resteasy.utils.Utils;
+import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.internal.PluginAggregator;
 import org.mybatis.generator.logging.Log;
@@ -54,15 +55,45 @@ public class ControllerGenerator extends AbstractJavaGenerator {
 
     @Override
     public List<CompilationUnit> getCompilationUnits() {
-
-        Interface inter = new Interface("com.dzy.resteasy.controller.CityController");
-        inter.setVisibility(JavaVisibility.PUBLIC);
-        inter.addImportedType(new FullyQualifiedJavaType
-                (introspectedTable.getBaseRecordType()));
-
+        TopLevelClass topLevelClass = new TopLevelClass(introspectedTable.getBaseRecordType());
+        topLevelClass.setVisibility(JavaVisibility.PUBLIC);
+        topLevelClass.addImportedType(introspectedTable.getBaseRecordType());
+        topLevelClass.addAnnotation("@Controller");
+        topLevelClass.addAnnotation("@RequestMapping(\"/"+introspectedTable.getFullyQualifiedTable().getDomainObjectName()+"/\")");
+        topLevelClass.addImportedType("org.springframework.stereotype.Controller");
+        topLevelClass.addImportedType("org.springframework.web.bind.annotation.RequestMapping");
+        topLevelClass.addImportedType("org.springframework.web.bind.annotation.RequestMethod");
+        //添加Filed=====start
+        String serviceType = GenerateFilePackageHolder.getFilePackage("service");
+        topLevelClass.addImportedType(serviceType);
+        Field field = new Field(Utils.lowerFirstCase(serviceType.substring(serviceType.lastIndexOf(".")+1,serviceType.length())),new FullyQualifiedJavaType(serviceType));
+        field.addAnnotation("@Autowired");
+        topLevelClass.addImportedType("org.springframework.beans.factory.annotation.Autowired ");
+        field.setVisibility(JavaVisibility.PRIVATE);
+        //添加Filed=====end
+        topLevelClass.addField(field);
+        addInsertSelectiveMethodImpl(topLevelClass);
         List<CompilationUnit> answer = new ArrayList<>();
-        answer.add(inter);
+        answer.add(topLevelClass);
         return answer;
+    }
+
+    protected void addInsertSelectiveMethodImpl(TopLevelClass interfaze) {
+        //如果有primary key
+        if (introspectedTable.getRules().generateSelectByPrimaryKey()) {
+            AbstractControllerImplMethodGenerator methodGenerator = new InsertSelectiveControllerMethodGenerator();
+            initializeAndExecuteImplGenerator(methodGenerator, interfaze);
+        }
+    }
+
+    protected void initializeAndExecuteImplGenerator(
+            AbstractControllerImplMethodGenerator methodGenerator,
+            TopLevelClass topLevelClass) {
+        methodGenerator.setIntrospectedTable(introspectedTable);
+        methodGenerator.setContext(context);
+        methodGenerator.setProgressCallback(progressCallback);
+        methodGenerator.setWarnings(warnings);
+        methodGenerator.addInterfaceElements(topLevelClass);
     }
 
 

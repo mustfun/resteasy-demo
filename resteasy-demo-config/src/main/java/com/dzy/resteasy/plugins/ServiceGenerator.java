@@ -23,6 +23,7 @@
 package com.dzy.resteasy.plugins;
 
 import com.dzy.resteasy.method.*;
+import com.dzy.resteasy.utils.GenerateFilePackageHolder;
 import com.dzy.resteasy.utils.Utils;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
@@ -57,6 +58,7 @@ public class ServiceGenerator extends AbstractJavaGenerator {
 
         //建立这个接口，service
         Interface inter = new Interface(introspectedTable.getBaseRecordType());
+        GenerateFilePackageHolder.setPackageName("service",introspectedTable.getBaseRecordType());
         inter.setVisibility(JavaVisibility.PUBLIC);
         inter.addImportedType(new FullyQualifiedJavaType
                 (introspectedTable.getBaseRecordType()));
@@ -67,6 +69,7 @@ public class ServiceGenerator extends AbstractJavaGenerator {
 
         //建立这个接口的实现类 serviceImpl
         TopLevelClass topLevelClass = new TopLevelClass(generateServiceImplPath(introspectedTable.getBaseRecordType(),introspectedTable));
+        GenerateFilePackageHolder.setPackageName("serviceImpl",generateServiceImplPath(introspectedTable.getBaseRecordType(),introspectedTable));
         topLevelClass.addSuperInterface(new FullyQualifiedJavaType(introspectedTable.getFullyQualifiedTable().getDomainObjectName()+"Service"));
         topLevelClass.setVisibility(JavaVisibility.PUBLIC);
         topLevelClass.addImportedType(introspectedTable.getBaseRecordType());
