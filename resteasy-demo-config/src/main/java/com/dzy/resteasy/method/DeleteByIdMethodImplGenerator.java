@@ -23,6 +23,7 @@
 package com.dzy.resteasy.method;
 
 import com.dzy.resteasy.utils.GenerateFilePackageHolder;
+import com.dzy.resteasy.utils.Utils;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.logging.Log;
 import org.mybatis.generator.logging.LogFactory;
@@ -36,49 +37,58 @@ import java.util.TreeSet;
  * @date 2018/1/12
  * @since 1.0
  */
-public class SelectByIdMethodGenerator extends AbstractJavaServiceMethodGenerator{
+public class DeleteByIdMethodImplGenerator extends AbstractJavaServiceImplMethodGenerator{
 
-    private static final Log log= LogFactory.getLog(SelectByIdMethodGenerator.class);
+    private static final Log log= LogFactory.getLog(DeleteByIdMethodImplGenerator.class);
 
-    public SelectByIdMethodGenerator() {
+
+    public DeleteByIdMethodImplGenerator() {
         super();
     }
 
     @Override
-    public void addInterfaceElements(Interface interfaze) {
+    public void addInterfaceElements(TopLevelClass topLevelClass) {
         Set<FullyQualifiedJavaType> importedTypes = new TreeSet<FullyQualifiedJavaType>();
         Method method = new Method();
         method.setVisibility(JavaVisibility.PUBLIC);
+        method.addAnnotation("@Override");
 
-        FullyQualifiedJavaType returnType = new FullyQualifiedJavaType(GenerateFilePackageHolder.getFilePackage("resp"));
+        FullyQualifiedJavaType returnType = new FullyQualifiedJavaType("java.lang.Boolean");
         method.setReturnType(returnType);
         importedTypes.add(returnType);
 
-        method.setName(introspectedTable.getSelectByPrimaryKeyStatementId());
-
         FullyQualifiedJavaType type = introspectedTable.getPrimaryKeyColumns().get(0).getFullyQualifiedJavaType();
-        log.debug("select by id service primary  key is  "+type.getFullyQualifiedName()+".."+type.getShortName()+".."+type.getPackageName());
 
-        importedTypes.add(type);
+        method.setName(introspectedTable.getDeleteByPrimaryKeyStatementId());
         method.addParameter(new Parameter(type, "id"));
 
-        addServiceAnnotations(interfaze, method);
+
+        String orginalDomainName = introspectedTable.getFullyQualifiedTable().getDomainObjectName();
+        String mapperType = introspectedTable.getMyBatis3JavaMapperType();
+
+
+        importedTypes.add(type);
+        importedTypes.add(new FullyQualifiedJavaType("org.springframework.beans.factory.annotation.Autowired"));
+        importedTypes.add(new FullyQualifiedJavaType("org.springframework.beans.BeanUtils"));
+        importedTypes.add(new FullyQualifiedJavaType(introspectedTable.getMyBatis3JavaMapperType()));
+        importedTypes.add(new FullyQualifiedJavaType(context.getJavaModelGeneratorConfiguration().getTargetPackage()+"."+orginalDomainName));
+        log.debug("now base record is "+introspectedTable.getFullyQualifiedTable());
+
+        //====添加方法体
+        StringBuilder sb = new StringBuilder();
+        sb.append("return ")
+                .append(Utils.extractBaseNameFromPackageAndLowerCase(mapperType))
+                .append(".").append(introspectedTable.getDeleteByPrimaryKeyStatementId())
+                .append("(").append("id").append(")==1;");
+        method.addBodyLine(sb.toString());
+        //====添加方法体
+
+        topLevelClass.addMethod(method);
+        topLevelClass.addImportedTypes(importedTypes);
 
         context.getCommentGenerator().addGeneralMethodComment(method,
                 introspectedTable);
 
-        if (context.getPlugins().clientSelectByPrimaryKeyMethodGenerated(
-                method, interfaze, introspectedTable)) {
-            addExtraImports(interfaze);
-            interfaze.addImportedTypes(importedTypes);
-            interfaze.addMethod(method);
-        }
     }
 
-    public void addServiceAnnotations(Interface interfaze, Method method) {
-
-    }
-
-    public void addExtraImports(Interface interfaze) {
-    }
 }

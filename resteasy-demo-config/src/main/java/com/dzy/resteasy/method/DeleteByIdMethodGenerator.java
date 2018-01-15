@@ -36,11 +36,11 @@ import java.util.TreeSet;
  * @date 2018/1/12
  * @since 1.0
  */
-public class SelectByIdMethodGenerator extends AbstractJavaServiceMethodGenerator{
+public class DeleteByIdMethodGenerator extends AbstractJavaServiceMethodGenerator{
 
-    private static final Log log= LogFactory.getLog(SelectByIdMethodGenerator.class);
+    private static final Log log= LogFactory.getLog(DeleteByIdMethodGenerator.class);
 
-    public SelectByIdMethodGenerator() {
+    public DeleteByIdMethodGenerator() {
         super();
     }
 
@@ -50,11 +50,11 @@ public class SelectByIdMethodGenerator extends AbstractJavaServiceMethodGenerato
         Method method = new Method();
         method.setVisibility(JavaVisibility.PUBLIC);
 
-        FullyQualifiedJavaType returnType = new FullyQualifiedJavaType(GenerateFilePackageHolder.getFilePackage("resp"));
+        FullyQualifiedJavaType returnType = new FullyQualifiedJavaType("java.lang.Boolean");
         method.setReturnType(returnType);
         importedTypes.add(returnType);
 
-        method.setName(introspectedTable.getSelectByPrimaryKeyStatementId());
+        method.setName(introspectedTable.getDeleteByPrimaryKeyStatementId());
 
         FullyQualifiedJavaType type = introspectedTable.getPrimaryKeyColumns().get(0).getFullyQualifiedJavaType();
         log.debug("select by id service primary  key is  "+type.getFullyQualifiedName()+".."+type.getShortName()+".."+type.getPackageName());

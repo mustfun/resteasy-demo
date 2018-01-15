@@ -22,8 +22,8 @@
 
 package com.dzy.resteasy.plugins;
 
-import com.dzy.resteasy.method.AbstractJavaServiceMethodGenerator;
-import com.dzy.resteasy.method.SelectByIdMethodGenerator;
+import com.dzy.resteasy.method.*;
+import com.dzy.resteasy.utils.Utils;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
@@ -61,6 +61,9 @@ public class ServiceGenerator extends AbstractJavaGenerator {
         inter.addImportedType(new FullyQualifiedJavaType
                 (introspectedTable.getBaseRecordType()));
         addSelectByPrimaryKeyMethod(inter);
+        addInsertSelectiveMethod(inter);
+        addUpdateSelectiveMethod(inter);
+        deleteByIdMethod(inter);
 
         //建立这个接口的实现类 serviceImpl
         TopLevelClass topLevelClass = new TopLevelClass(generateServiceImplPath(introspectedTable.getBaseRecordType(),introspectedTable));
@@ -69,6 +72,17 @@ public class ServiceGenerator extends AbstractJavaGenerator {
         topLevelClass.addImportedType(introspectedTable.getBaseRecordType());
         topLevelClass.addAnnotation("@Service");
         topLevelClass.addImportedType("org.springframework.stereotype.Service");
+        //添加Filed=====start
+        String mapperType = introspectedTable.getMyBatis3JavaMapperType();
+        Field field = new Field(Utils.lowerFirstCase(mapperType.substring(mapperType.lastIndexOf(".")+1,mapperType.length())),new FullyQualifiedJavaType(mapperType));
+        field.addAnnotation("@Autowired");
+        field.setVisibility(JavaVisibility.PRIVATE);
+        //添加Filed=====end
+        topLevelClass.addField(field);
+        addSelectByPrimaryKeyMethodImpl(topLevelClass);
+        addInsertSelectiveMethodImpl(topLevelClass);
+        addUpdateSelectiveMethodImpl(topLevelClass);
+        deleteByIdMethodImpl(topLevelClass);
         List<CompilationUnit> answer = new ArrayList<>();
         answer.add(topLevelClass);
         answer.add(inter);
@@ -93,12 +107,74 @@ public class ServiceGenerator extends AbstractJavaGenerator {
     protected void addSelectByPrimaryKeyMethod(Interface interfaze) {
         //如果有primary key
         if (introspectedTable.getRules().generateSelectByPrimaryKey()) {
-            AbstractJavaServiceMethodGenerator methodGenerator = new SelectByIdMethodGenerator(false);
+            AbstractJavaServiceMethodGenerator methodGenerator = new SelectByIdMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }
     }
 
+    protected void addInsertSelectiveMethod(Interface interfaze) {
+        //如果有primary key
+        if (introspectedTable.getRules().generateSelectByPrimaryKey()) {
+            AbstractJavaServiceMethodGenerator methodGenerator = new InsertSelectiveMethodGenerator();
+            initializeAndExecuteGenerator(methodGenerator, interfaze);
+        }
+    }
 
+    protected void addUpdateSelectiveMethod(Interface interfaze) {
+        //如果有primary key
+        if (introspectedTable.getRules().generateSelectByPrimaryKey()) {
+            AbstractJavaServiceMethodGenerator methodGenerator = new UpdateSelectiveMethodGenerator();
+            initializeAndExecuteGenerator(methodGenerator, interfaze);
+        }
+    }
+
+    protected void deleteByIdMethod(Interface interfaze) {
+        //如果有primary key
+        if (introspectedTable.getRules().generateSelectByPrimaryKey()) {
+            AbstractJavaServiceMethodGenerator methodGenerator = new DeleteByIdMethodGenerator();
+            initializeAndExecuteGenerator(methodGenerator, interfaze);
+        }
+    }
+
+    protected void deleteByIdMethodImpl(TopLevelClass topLevelClass) {
+        //如果有primary key
+        if (introspectedTable.getRules().generateSelectByPrimaryKey()) {
+            AbstractJavaServiceImplMethodGenerator methodGenerator = new DeleteByIdMethodImplGenerator();
+            initializeAndExecuteImplGenerator(methodGenerator, topLevelClass);
+        }
+    }
+
+    protected void addUpdateSelectiveMethodImpl(TopLevelClass topLevelClass) {
+        //如果有primary key
+        if (introspectedTable.getRules().generateSelectByPrimaryKey()) {
+            AbstractJavaServiceImplMethodGenerator methodGenerator = new UpdateSelectiveMethodImplGenerator();
+            initializeAndExecuteImplGenerator(methodGenerator, topLevelClass);
+        }
+    }
+
+
+    protected void addSelectByPrimaryKeyMethodImpl(TopLevelClass topLevelClass) {
+        //如果有primary key
+        if (introspectedTable.getRules().generateSelectByPrimaryKey()) {
+            AbstractJavaServiceImplMethodGenerator methodGenerator = new SelectByIdMethodImplGenerator();
+            initializeAndExecuteImplGenerator(methodGenerator, topLevelClass);
+        }
+    }
+
+    protected void addInsertSelectiveMethodImpl(TopLevelClass topLevelClass) {
+        //如果有primary key
+        if (introspectedTable.getRules().generateSelectByPrimaryKey()) {
+            AbstractJavaServiceImplMethodGenerator methodGenerator = new InsertSelectiveMethodImplGenerator();
+            initializeAndExecuteImplGenerator(methodGenerator, topLevelClass);
+        }
+    }
+
+
+    /**
+     * 接口
+     * @param methodGenerator
+     * @param interfaze
+     */
     protected void initializeAndExecuteGenerator(
             AbstractJavaServiceMethodGenerator methodGenerator,
             Interface interfaze) {
@@ -107,5 +183,20 @@ public class ServiceGenerator extends AbstractJavaGenerator {
         methodGenerator.setProgressCallback(progressCallback);
         methodGenerator.setWarnings(warnings);
         methodGenerator.addInterfaceElements(interfaze);
+    }
+
+    /**
+     * 实现类
+     * @param methodGenerator
+     * @param topLevelClass
+     */
+    protected void initializeAndExecuteImplGenerator(
+            AbstractJavaServiceImplMethodGenerator methodGenerator,
+            TopLevelClass topLevelClass) {
+        methodGenerator.setContext(context);
+        methodGenerator.setIntrospectedTable(introspectedTable);
+        methodGenerator.setWarnings(warnings);
+        methodGenerator.setProgressCallback(progressCallback);
+        methodGenerator.addInterfaceElements(topLevelClass);
     }
 }

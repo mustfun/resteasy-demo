@@ -41,12 +41,8 @@ public class GenerateFilePackageHolder {
      */
     private static HashMap<String,String> hashMap =new HashMap<>();
 
-    public static void init(){
-        log.debug("fuck package success size="+hashMap.size());
-    }
 
     public static void setPackageName(String key,String value){
-        log.debug("store package success size="+hashMap.size());
         hashMap.put(key,value);
         log.debug("store package success size="+hashMap.size());
     }

@@ -20,43 +20,38 @@
  * THE SOFTWARE.
  */
 
-package com.dzy.resteasy.utils;
+package com.dzy.resteasy.method;
+
+import com.dzy.resteasy.plugins.ExtDomainPlugin;
+import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.Interface;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.codegen.AbstractGenerator;
+import org.mybatis.generator.config.GeneratedKey;
+import org.mybatis.generator.logging.Log;
+import org.mybatis.generator.logging.LogFactory;
+
+import static org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities.getRenamedColumnNameForResultMap;
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * @author dengzhiyuan
  * @version 1.0
- * @date 2018/1/11
+ * @date 2018/1/12
  * @since 1.0
+ * @function 抽象生成service层代码
  */
-public class Utils {
+public abstract class AbstractJavaServiceImplMethodGenerator extends
+        AbstractGenerator {
 
-    public static String upperFirstCase(String str) {
-        char[] ch = str.toCharArray();
-        if (ch[0] >= 'a' && ch[0] <= 'z') {
-            ch[0] = (char) (ch[0] - 32);
-        }
-        return new String(ch);
-    }
+    private static final Log logger = LogFactory.getLog(ExtDomainPlugin.class);
 
-    public static String lowerFirstCase(String s){
-        if(Character.isLowerCase(s.charAt(0))) {
-            return s;
-        } else {
-            return (new StringBuilder()).append(Character.toLowerCase(s.charAt(0))).append(s.substring(1)).toString();
-        }
-    }
+    public abstract void addInterfaceElements(TopLevelClass interfaze);
 
-    public static String  extractBaseNameFromPackage(String packageName){
-        return packageName.substring(packageName.lastIndexOf(".") + 1, packageName.length());
-    }
-
-    public static String  extractBaseNameFromPackageAndLowerCase(String packageName){
-        String substring = packageName.substring(packageName.lastIndexOf(".") + 1, packageName.length());
-        return lowerFirstCase(substring);
-    }
-
-    public static String generateGetMethod(String id){
-        return "get"+upperFirstCase(id)+"()";
+    public AbstractJavaServiceImplMethodGenerator() {
+        super();
     }
 
 }

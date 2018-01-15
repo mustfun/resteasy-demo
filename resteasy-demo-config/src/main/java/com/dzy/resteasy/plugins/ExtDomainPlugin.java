@@ -126,7 +126,6 @@ public class ExtDomainPlugin extends PluginAdapter {
         String prefixPath = fullPath.substring(0, fullPath.lastIndexOf("."));
         String updatedFullPath = prefixPath+"."+type+"."+introspectedTable.getFullyQualifiedTable().getDomainObjectName()+ Utils.upperFirstCase(type);
         logger.debug("after rename po "+updatedFullPath);
-        GenerateFilePackageHolder.init();
         GenerateFilePackageHolder.setPackageName(type,updatedFullPath);
         introspectedTable.setBaseRecordType(updatedFullPath);
         return introspectedTable;

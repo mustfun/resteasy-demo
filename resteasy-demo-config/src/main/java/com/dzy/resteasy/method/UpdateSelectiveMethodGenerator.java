@@ -36,11 +36,11 @@ import java.util.TreeSet;
  * @date 2018/1/12
  * @since 1.0
  */
-public class SelectByIdMethodGenerator extends AbstractJavaServiceMethodGenerator{
+public class UpdateSelectiveMethodGenerator extends AbstractJavaServiceMethodGenerator{
 
-    private static final Log log= LogFactory.getLog(SelectByIdMethodGenerator.class);
+    private static final Log log= LogFactory.getLog(UpdateSelectiveMethodGenerator.class);
 
-    public SelectByIdMethodGenerator() {
+    public UpdateSelectiveMethodGenerator() {
         super();
     }
 
@@ -50,17 +50,15 @@ public class SelectByIdMethodGenerator extends AbstractJavaServiceMethodGenerato
         Method method = new Method();
         method.setVisibility(JavaVisibility.PUBLIC);
 
-        FullyQualifiedJavaType returnType = new FullyQualifiedJavaType(GenerateFilePackageHolder.getFilePackage("resp"));
-        method.setReturnType(returnType);
-        importedTypes.add(returnType);
-
-        method.setName(introspectedTable.getSelectByPrimaryKeyStatementId());
-
         FullyQualifiedJavaType type = introspectedTable.getPrimaryKeyColumns().get(0).getFullyQualifiedJavaType();
-        log.debug("select by id service primary  key is  "+type.getFullyQualifiedName()+".."+type.getShortName()+".."+type.getPackageName());
-
+        method.setReturnType(type);
         importedTypes.add(type);
-        method.addParameter(new Parameter(type, "id"));
+
+        FullyQualifiedJavaType reqType = new FullyQualifiedJavaType(GenerateFilePackageHolder.getFilePackage("req"));
+        importedTypes.add(reqType);
+
+        method.setName(introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
+        method.addParameter(new Parameter(reqType, "req"));
 
         addServiceAnnotations(interfaze, method);
 
