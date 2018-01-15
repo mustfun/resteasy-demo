@@ -22,8 +22,7 @@
 
 package com.dzy.resteasy.plugins;
 
-import com.dzy.resteasy.method.controller.AbstractControllerImplMethodGenerator;
-import com.dzy.resteasy.method.controller.InsertSelectiveControllerMethodGenerator;
+import com.dzy.resteasy.method.controller.*;
 import com.dzy.resteasy.utils.GenerateFilePackageHolder;
 import com.dzy.resteasy.utils.Utils;
 import org.mybatis.generator.api.dom.java.*;
@@ -72,11 +71,42 @@ public class ControllerGenerator extends AbstractJavaGenerator {
         field.setVisibility(JavaVisibility.PRIVATE);
         //添加Filed=====end
         topLevelClass.addField(field);
+
         addInsertSelectiveMethodImpl(topLevelClass);
+        addUpdateSelectiveMethodImpl(topLevelClass);
+        addSelectByIdMethodImpl(topLevelClass);
+        addDeleteByIdMethodImpl(topLevelClass);
+
+
         List<CompilationUnit> answer = new ArrayList<>();
         answer.add(topLevelClass);
         return answer;
     }
+
+    protected void addUpdateSelectiveMethodImpl(TopLevelClass topLevelClass) {
+        //如果有primary key
+        if (introspectedTable.getRules().generateSelectByPrimaryKey()) {
+            AbstractControllerImplMethodGenerator methodGenerator = new UpdateSelectiveControllerMethodGenerator();
+            initializeAndExecuteImplGenerator(methodGenerator, topLevelClass);
+        }
+    }
+
+    protected void addSelectByIdMethodImpl(TopLevelClass topLevelClass) {
+        //如果有primary key
+        if (introspectedTable.getRules().generateSelectByPrimaryKey()) {
+            AbstractControllerImplMethodGenerator methodGenerator = new SelectByIdControllerMethodGenerator();
+            initializeAndExecuteImplGenerator(methodGenerator, topLevelClass);
+        }
+    }
+
+    protected void addDeleteByIdMethodImpl(TopLevelClass topLevelClass) {
+        //如果有primary key
+        if (introspectedTable.getRules().generateSelectByPrimaryKey()) {
+            AbstractControllerImplMethodGenerator methodGenerator = new DeleteByIdControllerMethodGenerator();
+            initializeAndExecuteImplGenerator(methodGenerator, topLevelClass);
+        }
+    }
+
 
     protected void addInsertSelectiveMethodImpl(TopLevelClass interfaze) {
         //如果有primary key
